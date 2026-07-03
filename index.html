@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="محاسب المستقبل">
+    <meta name="description" content="نظام المحاسبة المتكامل - محاسب المستقبل">
+    <title>محاسب المستقبل | Future Accountant</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="splashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="100" height="100" rx="22" fill="url(#splashGrad)"/>
+                    <text x="50" y="62" font-family="Arial, sans-serif" font-size="38" font-weight="bold" fill="white" text-anchor="middle">FA</text>
+                    <circle cx="28" cy="28" r="6" fill="white" opacity="0.3"/>
+                    <circle cx="72" cy="72" r="6" fill="white" opacity="0.3"/>
+                    <line x1="30" y1="50" x2="70" y2="50" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+                </svg>
+            </div>
+            <h1 class="splash-title">محاسب المستقبل</h1>
+            <div class="splash-loader"></div>
+        </div>
+    </div>
+
+    <!-- PIN Lock Screen -->
+    <div id="pinLockScreen" class="pin-lock-screen" style="display: none;">
+        <div class="pin-lock-content">
+            <div class="pin-lock-icon"><span class="icon icon-lock"></span></div>
+            <h2>تطبيق مقفل</h2>
+            <p>أدخل رمز المرور للمتابعة</p>
+            <div class="pin-dots">
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+            </div>
+            <div class="pin-keypad">
+                <button class="pin-key" onclick="enterPin(1)">1</button>
+                <button class="pin-key" onclick="enterPin(2)">2</button>
+                <button class="pin-key" onclick="enterPin(3)">3</button>
+                <button class="pin-key" onclick="enterPin(4)">4</button>
+                <button class="pin-key" onclick="enterPin(5)">5</button>
+                <button class="pin-key" onclick="enterPin(6)">6</button>
+                <button class="pin-key" onclick="enterPin(7)">7</button>
+                <button class="pin-key" onclick="enterPin(8)">8</button>
+                <button class="pin-key" onclick="enterPin(9)">9</button>
+                <button class="pin-key pin-key-action" onclick="clearPin()">C</button>
+                <button class="pin-key" onclick="enterPin(0)">0</button>
+                <button class="pin-key pin-key-action" onclick="deletePin()">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ambient-bg">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+        <div class="ambient-orb orb-3"></div>
+    </div>
+    <div class="grid-pattern"></div>
+
+    <!-- PWA Install Banner -->
+    <div class="pwa-install-banner" id="pwaInstallBanner">
+        <div class="pwa-install-banner-content">
+            <span>📱 تثبيت التطبيق للوصول السريع</span>
+            <button class="pwa-install-btn" id="pwaInstallBtn">تثبيت</button>
+            <button class="pwa-dismiss-btn" id="pwaDismissBtn">✕</button>
+        </div>
+    </div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-page" class="login-wrapper">
+        <div class="login-card">
+            <div class="login-card-header">
+                <div class="login-logo">
+                    <img src="Future Accountant.png" alt="Future Accountant Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='<svg viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'><defs><linearGradient id=\'logoGrad\' x1=\'0%25\' y1=\'0%25\' x2=\'100%25\' y2=\'100%25\'><stop offset=\'0%25\' style=\'stop-color:#3b82f6;stop-opacity:1\' /><stop offset=\'100%25\' style=\'stop-color:#06b6d4;stop-opacity:1\' /></linearGradient></defs><rect width=\'100\' height=\'100\' rx=\'22\' fill=\'url(#logoGrad)\'/><text x=\'50\' y=\'62\' font-family=\'Arial, sans-serif\' font-size=\'38\' font-weight=\'bold\' fill=\'white\' text-anchor=\'middle\'>FA</text><circle cx=\'28\' cy=\'28\' r=\'6\' fill=\'white\' opacity=\'0.3\'/><circle cx=\'72\' cy=\'72\' r=\'6\' fill=\'white\' opacity=\'0.3\'/><line x1=\'30\' y1=\'50\' x2=\'70\' y2=\'50\' stroke=\'white\' stroke-width=\'3\' stroke-linecap=\'round\' opacity=\'0.6\'/></svg>'">
+                </div>
+                <h1>محاسب المستقبل</h1>
+                <p>نظام المحاسبة المتكامل</p>
+                <div class="dev-badge">مطور: عبد الوهاب الريمي</div>
+            </div>
+            <div class="login-card-body">
+                <form id="loginForm">
+                    <div class="form-group"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="loginEmail" placeholder="example@mail.com" required></div>
+                    <div class="form-group"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="loginPassword" placeholder="********" required></div>
+                    <button type="submit" class="btn btn-block">تسجيل الدخول</button>
+                </form>
+                <div style="text-align:center;margin:18px 0;color:var(--text-muted);font-weight:600;">أو</div>
+                <div class="login-option" onclick="loginWithGoogle()">
+                    <span class="icon google-icon"></span>
+                    <div>تسجيل الدخول بحساب جوجل</div>
+                </div>
+                <div class="login-option" onclick="loginAsGuest()">
+                    <span class="icon icon-user-tie"></span>
+                    <div>الدخول كضيف</div>
+                </div>
+                <div style="margin-top:18px;text-align:center;">
+                    <p style="color:var(--text-muted);">ليس لديك حساب؟ <a href="#" onclick="showRegisterModal()" style="color:var(--primary-light);font-weight:700;">إنشاء حساب جديد</a></p>
+                    <p style="margin-top:10px;font-size:11px;color:var(--text-muted);">مطور بواسطة: عبد الوهاب عبد الواحد الريمي</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="app-container" id="main-app" style="display: none;">
+        <div class="status-bar">
+            <div class="status-left">
+                <div class="app-logo" onclick="toggleSidebar()">
+                    <img src="Future Accountant.png" alt="Future Accountant Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='<svg viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'><defs><linearGradient id=\'logoGrad2\' x1=\'0%25\' y1=\'0%25\' x2=\'100%25\' y2=\'100%25\'><stop offset=\'0%25\' style=\'stop-color:#3b82f6;stop-opacity:1\' /><stop offset=\'100%25\' style=\'stop-color:#06b6d4;stop-opacity:1\' /></linearGradient></defs><rect width=\'100\' height=\'100\' rx=\'18\' fill=\'url(#logoGrad2)\'/><text x=\'50\' y=\'60\' font-family=\'Arial, sans-serif\' font-size=\'36\' font-weight=\'bold\' fill=\'white\' text-anchor=\'middle\'>FA</text></svg>'">
+                </div>
+                <div class="dev-info-badge">عبد الوهاب الريمي</div>
+            </div>
+            <div class="status-date-time">
+                <span class="date" id="currentDate"></span>
+                <span class="time" id="currentTime"></span>
+            </div>
+        </div>
+        <div class="search-bar">
+            <div class="search-container">
+                <input type="text" placeholder="ابحث في التطبيق..." id="searchInput">
+                <span class="icon icon-search"></span>
+            </div>
+            <div class="theme-toggle-top" id="themeToggleTop"><span class="icon icon-sun" id="themeIconTop"></span></div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">القائمة</span>
+                <button class="sidebar-close" onclick="closeSidebar()"><span class="icon icon-times"></span></button>
+            </div>
+            <div class="sidebar-db-section">
+                <div class="sidebar-label">📦 قاعدة البيانات الحالية</div>
+                <div class="db-select-container">
+                    <select id="activeDbSelector" onchange="switchDatabase(this.value)">
+                        <!-- سيتم تعبئتها ديناميكياً -->
+                    </select>
+                    <button class="btn-manage-dbs" onclick="openDatabaseManager()" title="إدارة قواعد البيانات">⚙️</button>
+                </div>
+            </div>
+            <div class="sidebar-menu">
+                <div class="sidebar-item" onclick="navigateFromSidebar('clients')"><span class="icon icon-users"></span> العملاء</div>
+                <div class="sidebar-item" onclick="navigateFromSidebar('suppliers')"><span class="icon icon-truck"></span> الموردين</div>
+                <div class="sidebar-item" onclick="navigateFromSidebar('debts')"><span class="icon icon-file-invoice-dollar"></span> الديون</div>
+                <div class="sidebar-item" onclick="navigateFromSidebar('employees')"><span class="icon icon-user-tie"></span> الموظفين</div>
+                <div class="sidebar-item" onclick="navigateFromSidebar('others')"><span class="icon icon-receipt"></span> أخرى</div>
+                <div class="sidebar-item" onclick="navigateFromSidebar('invoices')"><span class="icon icon-file-invoice"></span> سجل الفواتير</div>
+            </div>
+        </div>
+
+        <!-- HOME PAGE -->
+        <div id="home-page" class="page active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">💰 الإيرادات</div>
+                    <div class="stat-value-row">
+                        <div class="stat-value" id="revenueValueSAR">0.00</div>
+                        <span class="currency-sar">ر.س</span>
+                    </div>
+                    <div class="stat-value-row" style="margin-top:4px;">
+                        <div class="stat-value" id="revenueValueYER">0.00</div>
+                        <span class="currency-yer">ر.ي</span>
+                    </div>
+                    <div class="stat-change positive"><span id="revenueChange">0%</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📤 المصروفات</div>
+                    <div class="stat-value-row">
+                        <div class="stat-value" id="expensesValueSAR">0.00</div>
+                        <span class="currency-sar">ر.س</span>
+                    </div>
+                    <div class="stat-value-row" style="margin-top:4px;">
+                        <div class="stat-value" id="expensesValueYER">0.00</div>
+                        <span class="currency-yer">ر.ي</span>
+                    </div>
+                    <div class="stat-change negative"><span id="expensesChange">0%</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📊 صافي الربح</div>
+                    <div class="stat-value-row">
+                        <div class="stat-value" id="profitValueSAR">0.00</div>
+                        <span class="currency-sar">ر.س</span>
+                    </div>
+                    <div class="stat-value-row" style="margin-top:4px;">
+                        <div class="stat-value" id="profitValueYER">0.00</div>
+                        <span class="currency-yer">ر.ي</span>
+                    </div>
+                    <div class="stat-change positive"><span id="profitChange">0%</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">🏦 رصيد الخزينة</div>
+                    <div class="stat-value-row">
+                        <div class="stat-value" id="balanceValueSAR">0.00</div>
+                        <span class="currency-sar">ر.س</span>
+                    </div>
+                    <div class="stat-value-row" style="margin-top:4px;">
+                        <div class="stat-value" id="balanceValueYER">0.00</div>
+                        <span class="currency-yer">ر.ي</span>
+                    </div>
+                    <div class="stat-change positive"><span id="balanceChange">0%</span></div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-header"><div class="section-title">📊 الرسوم البيانية المتقدمة</div></div>
+                <div class="chart-container" style="background: var(--glass-bg); border-radius: 24px; padding: 16px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); border: 1px solid var(--glass-border);">
+                    <canvas id="financeChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-header"><div class="section-title">📊 الإدارة المالية</div></div>
+                <div class="finance-grid">
+                    <div class="finance-card" onclick="showPage('clients')"><div class="finance-icon"><span class="icon icon-users"></span></div><div class="finance-value" id="clientsCount">0</div><div class="finance-label">العملاء</div></div>
+                    <div class="finance-card" onclick="showPage('suppliers')"><div class="finance-icon"><span class="icon icon-truck"></span></div><div class="finance-value" id="suppliersCount">0</div><div class="finance-label">الموردين</div></div>
+                    <div class="finance-card" onclick="showPage('debts')"><div class="finance-icon"><span class="icon icon-file-invoice-dollar"></span></div><div class="finance-value" id="debtsCount">0</div><div class="finance-label">الديون</div></div>
+                    <div class="finance-card" onclick="showPage('employees')"><div class="finance-icon"><span class="icon icon-user-tie"></span></div><div class="finance-value" id="employeesCount">0</div><div class="finance-label">الموظفين</div></div>
+                    <div class="finance-card" onclick="showPage('others')"><div class="finance-icon"><span class="icon icon-receipt"></span></div><div class="finance-value" id="othersCount">0</div><div class="finance-label">أخرى</div></div>
+                    <div class="finance-card" onclick="showPage('invoices')"><div class="finance-icon"><span class="icon icon-file-invoice"></span></div><div class="finance-value" id="invoicesCount">0</div><div class="finance-label">الفواتير</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- العملاء -->
+        <div id="clients-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('home')"><span class="icon icon-chevron-right"></span></div><div class="page-title">العملاء</div></div>
+            <div class="list-container" id="clientsList" style="margin-top:14px;"></div>
+        </div>
+        <div id="client-records-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('clients')"><span class="icon icon-chevron-right"></span></div><div class="page-title" id="clientRecordsTitle">سجل العميل</div></div>
+            <div class="card balance-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;">
+                    <div><div style="font-size:14px;color:var(--text-muted);">الرصيد المتبقي</div><div style="font-size:24px;font-weight:800;" id="clientBalanceSAR">0.00 ر.س</div></div>
+                    <div style="text-align:left;"><div style="font-size:14px;color:var(--text-muted);">الرصيد (ريال يمني)</div><div style="font-size:24px;font-weight:800;" id="clientBalanceYER">0.00 ر.ي</div></div>
+                </div>
+            </div>
+            <div class="card" style="padding:0;overflow:hidden;">
+                <div class="card-header" style="padding:15px 20px;margin-bottom:0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;">
+                    <div style="display:flex;align-items:center;gap:10px;"><span class="icon icon-history"></span> كشف الحساب</div>
+                    <div class="actions-toggle-container" id="clientActionsContainer">
+                        <button class="actions-toggle-btn" id="clientActionsToggle" onclick="toggleActionsMenu(event, 'client')"><span class="icon icon-plus"></span></button>
+                        <div class="actions-horizontal-menu" id="clientActionsMenu">
+                            <button class="action-mini-btn btn-whatsapp" onclick="sendEntityStatement('client','whatsapp');closeAllActionsMenus();" title="واتساب"><span class="icon icon-whatsapp-colored"></span><span class="mini-tooltip">واتساب</span></button>
+                            <button class="action-mini-btn btn-sms" onclick="sendEntityStatement('client','sms');closeAllActionsMenus();" title="رسالة"><span class="icon icon-sms-colored"></span><span class="mini-tooltip">رسالة</span></button>
+                            <button class="action-mini-btn btn-pdf" onclick="exportEntityStatementPDF('client');closeAllActionsMenus();" title="PDF"><span class="icon icon-pdf-colored"></span><span class="mini-tooltip">PDF</span></button>
+                            <button class="action-mini-btn btn-delete" onclick="deleteEntity('client');closeAllActionsMenus();" title="حذف"><span class="icon icon-delete-colored"></span><span class="mini-tooltip">حذف</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div style="max-height:50vh;overflow-y:auto;">
+                    <table class="records-table" style="margin-top:0;">
+                        <thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>الصنف</th><th></th></tr></thead>
+                        <tbody id="clientUnifiedRecords"></tbody>
+                        <tfoot id="clientTotalRow"></tfoot>
+                    </table>
+                    <div id="noClientRecordsPlaceholder" class="empty-placeholder"><span class="icon icon-receipt empty-icon"></span><p>لا توجد حركات مالية حتى الآن</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الموردين -->
+        <div id="suppliers-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('home')"><span class="icon icon-chevron-right"></span></div><div class="page-title">الموردين</div></div>
+            <div class="list-container" id="suppliersList"></div>
+        </div>
+        <div id="supplier-records-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('suppliers')"><span class="icon icon-chevron-right"></span></div><div class="page-title" id="supplierRecordsTitle">سجل المورد</div></div>
+            <div class="card balance-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;">
+                    <div><div style="font-size:14px;color:var(--text-muted);">الرصيد المتبقي</div><div style="font-size:24px;font-weight:800;" id="supplierBalanceSAR">0.00 ر.س</div></div>
+                    <div style="text-align:left;"><div style="font-size:14px;color:var(--text-muted);">الرصيد (ريال يمني)</div><div style="font-size:24px;font-weight:800;" id="supplierBalanceYER">0.00 ر.ي</div></div>
+                </div>
+            </div>
+            <div class="card" style="padding:0;overflow:hidden;">
+                <div class="card-header" style="padding:15px 20px;margin-bottom:0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;">
+                    <div style="display:flex;align-items:center;gap:10px;"><span class="icon icon-history"></span> كشف الحساب</div>
+                    <div class="actions-toggle-container" id="supplierActionsContainer">
+                        <button class="actions-toggle-btn" id="supplierActionsToggle" onclick="toggleActionsMenu(event, 'supplier')"><span class="icon icon-plus"></span></button>
+                        <div class="actions-horizontal-menu" id="supplierActionsMenu">
+                            <button class="action-mini-btn btn-whatsapp" onclick="sendEntityStatement('supplier','whatsapp');closeAllActionsMenus();" title="واتساب"><span class="icon icon-whatsapp-colored"></span><span class="mini-tooltip">واتساب</span></button>
+                            <button class="action-mini-btn btn-sms" onclick="sendEntityStatement('supplier','sms');closeAllActionsMenus();" title="رسالة"><span class="icon icon-sms-colored"></span><span class="mini-tooltip">رسالة</span></button>
+                            <button class="action-mini-btn btn-pdf" onclick="exportEntityStatementPDF('supplier');closeAllActionsMenus();" title="PDF"><span class="icon icon-pdf-colored"></span><span class="mini-tooltip">PDF</span></button>
+                            <button class="action-mini-btn btn-delete" onclick="deleteEntity('supplier');closeAllActionsMenus();" title="حذف"><span class="icon icon-delete-colored"></span><span class="mini-tooltip">حذف</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div style="max-height:50vh;overflow-y:auto;">
+                    <table class="records-table" style="margin-top:0;">
+                        <thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>الصنف</th><th></th></tr></thead>
+                        <tbody id="supplierUnifiedRecords"></tbody>
+                        <tfoot id="supplierTotalRow"></tfoot>
+                    </table>
+                    <div id="noSupplierRecordsPlaceholder" class="empty-placeholder"><span class="icon icon-receipt empty-icon"></span><p>لا توجد حركات مالية حتى الآن</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الديون -->
+        <div id="debts-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('home')"><span class="icon icon-chevron-right"></span></div><div class="page-title">الديون</div></div>
+            <div class="list-container" id="debtorsList"></div>
+        </div>
+        <div id="debtor-records-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('debts')"><span class="icon icon-chevron-right"></span></div><div class="page-title" id="debtorRecordsTitle">سجل الدين</div></div>
+            <div class="card balance-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;">
+                    <div><div style="font-size:14px;color:var(--text-muted);">الرصيد المتبقي</div><div style="font-size:24px;font-weight:800;" id="debtorBalanceSAR">0.00 ر.س</div></div>
+                    <div style="text-align:left;"><div style="font-size:14px;color:var(--text-muted);">الرصيد (ريال يمني)</div><div style="font-size:24px;font-weight:800;" id="debtorBalanceYER">0.00 ر.ي</div></div>
+                </div>
+            </div>
+            <div class="card" style="padding:0;overflow:hidden;">
+                <div class="card-header" style="padding:15px 20px;margin-bottom:0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;">
+                    <div style="display:flex;align-items:center;gap:10px;"><span class="icon icon-history"></span> كشف الحساب</div>
+                    <div class="actions-toggle-container" id="debtorActionsContainer">
+                        <button class="actions-toggle-btn" id="debtorActionsToggle" onclick="toggleActionsMenu(event, 'debtor')"><span class="icon icon-plus"></span></button>
+                        <div class="actions-horizontal-menu" id="debtorActionsMenu">
+                            <button class="action-mini-btn btn-whatsapp" onclick="sendEntityStatement('debtor','whatsapp');closeAllActionsMenus();" title="واتساب"><span class="icon icon-whatsapp-colored"></span><span class="mini-tooltip">واتساب</span></button>
+                            <button class="action-mini-btn btn-sms" onclick="sendEntityStatement('debtor','sms');closeAllActionsMenus();" title="رسالة"><span class="icon icon-sms-colored"></span><span class="mini-tooltip">رسالة</span></button>
+                            <button class="action-mini-btn btn-pdf" onclick="exportEntityStatementPDF('debtor');closeAllActionsMenus();" title="PDF"><span class="icon icon-pdf-colored"></span><span class="mini-tooltip">PDF</span></button>
+                            <button class="action-mini-btn btn-delete" onclick="deleteEntity('debtor');closeAllActionsMenus();" title="حذف"><span class="icon icon-delete-colored"></span><span class="mini-tooltip">حذف</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div style="max-height:50vh;overflow-y:auto;">
+                    <table class="records-table" style="margin-top:0;">
+                        <thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>الصنف</th><th></th></tr></thead>
+                        <tbody id="debtorUnifiedRecords"></tbody>
+                        <tfoot id="debtorTotalRow"></tfoot>
+                    </table>
+                    <div id="noDebtorRecordsPlaceholder" class="empty-placeholder"><span class="icon icon-receipt empty-icon"></span><p>لا توجد حركات مالية حتى الآن</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الموظفين -->
+        <div id="employees-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('home')"><span class="icon icon-chevron-right"></span></div><div class="page-title">الموظفين</div></div>
+            <div class="list-container" id="employeesList"></div>
+        </div>
+        <div id="employee-records-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('employees')"><span class="icon icon-chevron-right"></span></div><div class="page-title" id="employeeRecordsTitle">سجل الموظف</div></div>
+            <div class="card balance-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;">
+                    <div><div style="font-size:14px;color:var(--text-muted);">الرصيد المتبقي</div><div style="font-size:24px;font-weight:800;" id="employeeBalanceSAR">0.00 ر.س</div></div>
+                    <div style="text-align:left;"><div style="font-size:14px;color:var(--text-muted);">الرصيد (ريال يمني)</div><div style="font-size:24px;font-weight:800;" id="employeeBalanceYER">0.00 ر.ي</div></div>
+                </div>
+            </div>
+            <div class="card" style="padding:0;overflow:hidden;">
+                <div class="card-header" style="padding:15px 20px;margin-bottom:0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;">
+                    <div style="display:flex;align-items:center;gap:10px;"><span class="icon icon-history"></span> كشف الحساب</div>
+                    <div class="actions-toggle-container" id="employeeActionsContainer">
+                        <button class="actions-toggle-btn" id="employeeActionsToggle" onclick="toggleActionsMenu(event, 'employee')"><span class="icon icon-plus"></span></button>
+                        <div class="actions-horizontal-menu" id="employeeActionsMenu">
+                            <button class="action-mini-btn btn-whatsapp" onclick="sendEntityStatement('employee','whatsapp');closeAllActionsMenus();" title="واتساب"><span class="icon icon-whatsapp-colored"></span><span class="mini-tooltip">واتساب</span></button>
+                            <button class="action-mini-btn btn-sms" onclick="sendEntityStatement('employee','sms');closeAllActionsMenus();" title="رسالة"><span class="icon icon-sms-colored"></span><span class="mini-tooltip">رسالة</span></button>
+                            <button class="action-mini-btn btn-pdf" onclick="exportEntityStatementPDF('employee');closeAllActionsMenus();" title="PDF"><span class="icon icon-pdf-colored"></span><span class="mini-tooltip">PDF</span></button>
+                            <button class="action-mini-btn btn-delete" onclick="deleteEntity('employee');closeAllActionsMenus();" title="حذف"><span class="icon icon-delete-colored"></span><span class="mini-tooltip">حذف</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div style="max-height:50vh;overflow-y:auto;">
+                    <table class="records-table" style="margin-top:0;">
+                        <thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>الصنف</th><th></th></tr></thead>
+                        <tbody id="employeeUnifiedRecords"></tbody>
+                        <tfoot id="employeeTotalRow"></tfoot>
+                    </table>
+                    <div id="noEmployeeRecordsPlaceholder" class="empty-placeholder"><span class="icon icon-receipt empty-icon"></span><p>لا توجد حركات مالية حتى الآن</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- أخرى -->
+        <div id="others-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('home')"><span class="icon icon-chevron-right"></span></div><div class="page-title">أخرى</div></div>
+            <div class="list-container" id="othersList" style="margin-top:14px;"></div>
+        </div>
+        <div id="other-records-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('others')"><span class="icon icon-chevron-right"></span></div><div class="page-title" id="otherRecordsTitle">سجل أخرى</div></div>
+            <div class="card balance-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;">
+                    <div><div style="font-size:14px;color:var(--text-muted);">الرصيد المتبقي</div><div style="font-size:24px;font-weight:800;" id="otherBalanceSAR">0.00 ر.س</div></div>
+                    <div style="text-align:left;"><div style="font-size:14px;color:var(--text-muted);">الرصيد (ريال يمني)</div><div style="font-size:24px;font-weight:800;" id="otherBalanceYER">0.00 ر.ي</div></div>
+                </div>
+            </div>
+            <div class="card" style="padding:0;overflow:hidden;">
+                <div class="card-header" style="padding:15px 20px;margin-bottom:0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;">
+                    <div style="display:flex;align-items:center;gap:10px;"><span class="icon icon-history"></span> كشف الحساب</div>
+                    <div class="actions-toggle-container" id="otherActionsContainer">
+                        <button class="actions-toggle-btn" id="otherActionsToggle" onclick="toggleActionsMenu(event, 'other')"><span class="icon icon-plus"></span></button>
+                        <div class="actions-horizontal-menu" id="otherActionsMenu">
+                            <button class="action-mini-btn btn-whatsapp" onclick="sendEntityStatement('other','whatsapp');closeAllActionsMenus();" title="واتساب"><span class="icon icon-whatsapp-colored"></span><span class="mini-tooltip">واتساب</span></button>
+                            <button class="action-mini-btn btn-sms" onclick="sendEntityStatement('other','sms');closeAllActionsMenus();" title="رسالة"><span class="icon icon-sms-colored"></span><span class="mini-tooltip">رسالة</span></button>
+                            <button class="action-mini-btn btn-pdf" onclick="exportEntityStatementPDF('other');closeAllActionsMenus();" title="PDF"><span class="icon icon-pdf-colored"></span><span class="mini-tooltip">PDF</span></button>
+                            <button class="action-mini-btn btn-delete" onclick="deleteEntity('other');closeAllActionsMenus();" title="حذف"><span class="icon icon-delete-colored"></span><span class="mini-tooltip">حذف</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div style="max-height:50vh;overflow-y:auto;">
+                    <table class="records-table" style="margin-top:0;">
+                        <thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>الصنف</th><th></th></tr></thead>
+                        <tbody id="otherUnifiedRecords"></tbody>
+                        <tfoot id="otherTotalRow"></tfoot>
+                    </table>
+                    <div id="noOtherRecordsPlaceholder" class="empty-placeholder"><span class="icon icon-receipt empty-icon"></span><p>لا توجد حركات مالية حتى الآن</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الفاتورة -->
+        <div id="invoice-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('invoices')"><span class="icon icon-chevron-right"></span></div><div class="page-title">فاتورة جديدة</div></div>
+            <div class="invoice-box" id="invoiceBox">
+                <div class="invoice-header">
+                    <div class="company-info">
+                        <h2 contenteditable="true" data-placeholder="اسم المؤسسة">اسم المؤسسة</h2>
+                        <p>رقم التواصل: <span contenteditable="true" data-placeholder="05xxxxxxxx" class="editable">05XXXXXXXX</span></p>
+                    </div>
+                    <div class="logo-section-invoice no-print" onclick="document.getElementById('invoiceLogoFile').click()" title="إضافة شعار">
+                        <span id="invoiceLogoTxt">شعار</span>
+                        <img id="invoiceLogoImg" style="display:none">
+                        <input type="file" id="invoiceLogoFile" hidden accept="image/*" onchange="showInvoiceLogo(event)">
+                    </div>
+                </div>
+                <div class="invoice-settings no-print">
+                    <div><label>💰 العملة:</label><select id="invCurrency" onchange="updateInvoiceCurrency()"><option value="ر.س">ر.س</option><option value="ر.ي">ر.ي</option></select></div>
+                    <div><label>💳 الدفع:</label><select id="invPaymentType" onchange="toggleInvoicePayment()"><option value="cash">نقد</option><option value="credit">آجل</option></select></div>
+                </div>
+                <div class="client-info-invoice">
+                    <div id="invCreditSection" style="display:none">
+                        <div><span class="label-inv">العميل:</span><select id="invClientSelect" class="form-control inv-client-select"><option value="">-- اختر عميلاً --</option></select></div>
+                        <div><span class="label-inv">الهاتف:</span><span id="invClientPhone" class="editable">---</span></div>
+                    </div>
+                    <div id="invCashSection">
+                        <div><span class="label-inv">العميل:</span><span contenteditable="true" class="editable" data-placeholder="اسم العميل (اختياري)"></span></div>
+                        <div><span class="label-inv">الهاتف:</span><span contenteditable="true" class="editable" data-placeholder="05xxxxxxxx"></span></div>
+                    </div>
+                </div>
+                <table class="invoice-table">
+                    <thead><tr><th class="col-item-inv">الصنف</th><th>الكمية</th><th>السعر <span class="invCur">ر.س</span></th><th>الإجمالي <span class="invCur">ر.س</span></th><th class="no-print"></th></tr></thead>
+                    <tbody id="invTbody">
+                        <tr>
+                            <td class="col-item-inv" contenteditable="true" data-placeholder="اسم الصنف..."></td>
+                            <td><input type="number" class="invQty" value="1" min="0" step="any" oninput="calcInvoice()"></td>
+                            <td><input type="number" class="invPrice" value="0" min="0" step="any" oninput="calcInvoice()"></td>
+                            <td class="invRowTotal">0.00</td>
+                            <td class="no-print"><button class="btn-del-inv" onclick="this.closest('tr').remove(); calcInvoice()">✕</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn-add-row no-print" onclick="addInvoiceRow()">+ إضافة صنف</button>
+                <div class="footer-area-invoice">
+                    <div class="summary-box">
+                        <div class="summary-row"><span>الإجمالي:</span><span><span id="invGTotal">0.00</span> <span class="invCur">ر.س</span></span></div>
+                        <div class="summary-row"><span>المدفوع:</span><input type="number" id="invPaid" value="0" min="0" step="any" oninput="calcInvoice()" style="width:70px"> <span class="invCur">ر.س</span></div>
+                        <div class="summary-row total-bold"><span>المتبقي:</span><span><span id="invBalance">0.00</span> <span class="invCur">ر.س</span></span></div>
+                    </div>
+                </div>
+                <div class="print-footer-invoice">
+                    <div>رقم الفاتورة: <span contenteditable="true" class="editable" data-placeholder="#1001">#1001</span></div>
+                    <div class="printed-info">
+                        <div>طُبع بواسطة: <span contenteditable="true" class="editable" data-placeholder="المستخدم">مدير المبيعات</span></div>
+                        <span>📅 <span id="invMDate"></span></span> | <span>🕌 <span id="invHDate"></span></span><br>
+                        <span>🕐 <span id="invPTime"></span></span>
+                    </div>
+                </div>
+                <div class="invoice-actions no-print">
+                    <button class="btn btn-print-invoice" onclick="printInvoiceOnly()"><span class="icon icon-print"></span> طباعة</button>
+                    <button class="btn btn-print-invoice" style="background: linear-gradient(135deg, #ef4444, #dc2626);" onclick="exportInvoiceToPDF()"><span class="icon icon-pdf-colored"></span> PDF</button>
+                    <button class="btn btn-save-invoice" onclick="saveInvoiceOnly()"><span class="icon icon-save"></span> حفظ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- سجل الفواتير -->
+        <div id="invoices-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('home')"><span class="icon icon-chevron-right"></span></div><div class="page-title">سجل الفواتير</div></div>
+            <div class="list-container" id="invoicesList"><div class="list-item empty-list-item">لا توجد فواتير محفوظة</div></div>
+        </div>
+
+        <!-- الإعدادات -->
+        <div id="settings-page" class="page">
+            <div class="page-header"><div class="back-button" onclick="showPage('home')"><span class="icon icon-chevron-right"></span></div><div class="page-title">الإعدادات</div></div>
+            <div class="list-container">
+                <div class="list-item" onclick="togglePinSetup()"><div class="item-info"><div class="item-icon" style="background: rgba(16, 185, 129, 0.2);"><span class="icon icon-lock" style="color: #10b981;"></span></div><div>قفل التطبيق (PIN)</div></div><span id="pinStatusText" style="font-size: 12px; color: var(--text-muted);">غير مفعل</span></div>
+                <div class="list-item" onclick="exportDatabaseToFile()"><div class="item-info"><div class="item-icon"><span class="icon icon-download"></span></div><div>تصدير نسخة احتياطية (JSON)</div></div><span class="icon icon-chevron-left" style="color: var(--text-muted);"></span></div>
+                <div class="list-item" onclick="document.getElementById('importFile').click()"><div class="item-info"><div class="item-icon"><span class="icon icon-upload"></span></div><div>استيراد نسخة احتياطية</div></div><span class="icon icon-chevron-left" style="color: var(--text-muted);"></span></div>
+                <input type="file" id="importFile" style="display:none" accept=".json" onchange="importDatabaseFromFile(this.files[0])">
+                <div class="list-item" onclick="logout()"><div class="item-info"><div class="item-icon" style="background:rgba(239,68,68,0.2);"><span class="icon icon-sign-out-alt"></span></div><div>تسجيل الخروج</div></div><span class="icon icon-chevron-left" style="color: var(--text-muted);"></span></div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="showPage('home')">
+                <div class="nav-icon-wrapper">
+                    <span class="icon icon-home nav-icon"></span>
+                    <div class="nav-active-indicator"></div>
+                </div>
+                <span class="nav-label">الرئيسية</span>
+            </div>
+            <div class="nav-plus-wrapper">
+                <div class="nav-plus-ring"></div>
+                <button class="nav-plus-btn" id="navPlusBtn" onclick="toggleNavSemiMenu(event)">
+                    <span class="icon icon-plus"></span>
+                </button>
+                <div class="nav-semi-menu" id="navSemiMenu">
+                    <div class="semi-menu-item" onclick="showPage('clients');closeNavSemiMenu();">
+                        <div class="semi-item-icon"><span class="icon icon-users"></span></div>
+                        <span class="semi-item-label">العملاء</span>
+                    </div>
+                    <div class="semi-menu-item" onclick="showPage('suppliers');closeNavSemiMenu();">
+                        <div class="semi-item-icon"><span class="icon icon-truck"></span></div>
+                        <span class="semi-item-label">الموردين</span>
+                    </div>
+                    <div class="semi-menu-item" onclick="showPage('debts');closeNavSemiMenu();">
+                        <div class="semi-item-icon"><span class="icon icon-file-invoice-dollar"></span></div>
+                        <span class="semi-item-label">الديون</span>
+                    </div>
+                    <div class="semi-menu-item" onclick="showPage('employees');closeNavSemiMenu();">
+                        <div class="semi-item-icon"><span class="icon icon-user-tie"></span></div>
+                        <span class="semi-item-label">الموظفين</span>
+                    </div>
+                    <div class="semi-menu-item" onclick="showPage('invoices');closeNavSemiMenu();">
+                        <div class="semi-item-icon"><span class="icon icon-file-invoice"></span></div>
+                        <span class="semi-item-label">الفواتير</span>
+                    </div>
+                    <div class="semi-menu-item" onclick="showPage('others');closeNavSemiMenu();">
+                        <div class="semi-item-icon"><span class="icon icon-receipt"></span></div>
+                        <span class="semi-item-label">أخرى</span>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-item" onclick="showPage('settings')">
+                <div class="nav-icon-wrapper">
+                    <span class="icon icon-cog nav-icon"></span>
+                    <div class="nav-active-indicator"></div>
+                </div>
+                <span class="nav-label">الإعدادات</span>
+            </div>
+        </div>
+
+        <!-- أزرار عائمة -->
+        <div class="fab-invoice-inpage" id="fabInvoiceInPage"><button class="fab-invoice-inpage-main" onclick="showPage('invoice')" title="فاتورة جديدة"><span class="icon icon-plus"></span></button></div>
+        <div class="fab-add-entity" id="entityFabContainer" style="display:none;">
+            <button class="fab-add-entity-main" id="entityFabMain" onclick="toggleEntityAddPopover(event)"><span class="icon icon-plus"></span></button>
+            <div class="entity-add-popover" id="entityAddPopover">
+                <div class="popover-title" id="entityPopoverTitle">➕ إضافة</div>
+                <div class="popover-option" onclick="addEntityFromContact();closeEntityAddPopover();"><span class="icon icon-address-book"></span> من جهات الاتصال</div>
+                <div class="popover-option" onclick="showEntityModal();closeEntityAddPopover();"><span class="icon icon-edit"></span> إضافة يدوي</div>
+            </div>
+        </div>
+        <div class="fab-container" id="fabContainer" style="display:none;">
+            <button class="fab-main" id="fabMain" onclick="toggleVoucherPopover(event)"><span class="icon icon-plus"></span></button>
+            <div class="voucher-popover" id="voucherPopover">
+                <div style="font-weight:700;margin-bottom:12px;color:var(--text-primary);">سند جديد</div>
+                <div class="voucher-type-toggle">
+                    <div class="voucher-type-btn active credit" data-type="credit" onclick="setVoucherType('credit',this)">له ⬇️</div>
+                    <div class="voucher-type-btn" data-type="debit" onclick="setVoucherType('debit',this)">عليه ⬆️</div>
+                </div>
+                <div class="form-group"><label class="form-label">المبلغ</label><div class="amount-currency-row"><input type="number" class="form-control" id="voucherAmount" step="0.01" placeholder="0.00"><select class="form-control" id="voucherCurrency"><option value="SAR">ر.س</option><option value="YER">ر.ي</option></select></div></div>
+                <div class="form-group"><label class="form-label">الصنف</label><input type="text" class="form-control" id="voucherItem" placeholder="الصنف..."></div>
+                <button class="btn btn-block" onclick="addVoucherFromPopover()">حفظ السند</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal" id="dbManagerModal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <div class="modal-title">📦 إدارة قواعد البيانات</div>
+                <button class="modal-close" onclick="closeModal('dbManagerModal')">&times;</button>
+            </div>
+            
+            <!-- إنشاء قاعدة جديدة -->
+            <div class="card" style="margin-bottom: 18px; padding: 16px;">
+                <div style="font-weight: 700; margin-bottom: 10px; font-size: 14px; color: var(--text-primary);">➕ إنشاء قاعدة بيانات جديدة</div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="newDbNameInput" class="form-control" style="padding: 10px 14px; font-size: 14px;" placeholder="مثال: شركة اليمامة، حساباتي...">
+                    <button class="btn" style="padding: 10px 18px; font-size: 14px; white-space: nowrap;" onclick="createNewDatabase()">إضافة</button>
+                </div>
+            </div>
+
+            <!-- استيراد قاعدة بيانات -->
+            <div class="card" style="margin-bottom: 18px; padding: 16px;">
+                <div style="font-weight: 700; margin-bottom: 10px; font-size: 14px; color: var(--text-primary);">📥 استيراد قاعدة بيانات جديدة</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="btn btn-outline" style="font-size: 13px; padding: 8px 14px; white-space: nowrap;" onclick="document.getElementById('importDbFile').click()">تحديد ملف النسخة</button>
+                    <span id="importDbFileName" style="color: var(--text-muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">لم يتم اختيار ملف</span>
+                    <input type="file" id="importDbFile" style="display:none" accept=".json" onchange="onDbFileSelected(this.files[0])">
+                </div>
+            </div>
+
+            <!-- القائمة -->
+            <div style="font-weight: 700; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary);">📋 قواعد البيانات المتاحة</div>
+            <div id="dbListContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-left: 4px;">
+                <!-- سيتم تعبئتها ديناميكياً -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="entityModal">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title" id="entityModalTitle">إضافة</div><button class="modal-close" onclick="closeModal('entityModal')">&times;</button></div>
+            <form id="entityForm">
+                <div class="form-group"><label class="form-label">الاسم</label><input type="text" class="form-control" id="entityName" required></div>
+                <div class="form-group"><label class="form-label">رقم الهاتف</label><input type="text" class="form-control" id="entityPhone" required></div>
+                <div class="form-group"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="entityEmail"></div>
+                <button type="submit" class="btn btn-block">حفظ</button>
+            </form>
+        </div>
+    </div>
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">إنشاء حساب</div><button class="modal-close" onclick="closeModal('registerModal')">&times;</button></div>
+            <form id="registerForm">
+                <div class="form-group"><label class="form-label">الاسم</label><input type="text" class="form-control" id="registerName" required></div>
+                <div class="form-group"><label class="form-label">البريد</label><input type="email" class="form-control" id="registerEmail" required></div>
+                <div class="form-group"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="registerPassword" required></div>
+                <div class="form-group"><label class="form-label">تأكيد</label><input type="password" class="form-control" id="registerConfirmPassword" required></div>
+                <button type="submit" class="btn btn-block">إنشاء</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Script -->
+    <script src="app.js"></script>
+</body>
+</html>

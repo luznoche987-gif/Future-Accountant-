@@ -1,0 +1,26 @@
+{
+  "name": "محاسب المستقبل",
+  "short_name": "محاسب",
+  "description": "محاسب المستقبل - نظام المحاسبة المتكامل",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#0a0a1a",
+  "orientation": "portrait-primary",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "scope": ".",
+  "prefer_related_applications": false
+}
